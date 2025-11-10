@@ -1,17 +1,15 @@
-# Ignore environment files
 .env
 *.env
 
-# Ignore virtual environment folder
 .venv/
 venv/
 
-# Ignore Python cache and temporary files
+
 __pycache__/
 *.pyc
 *.pyo
 *.db
 
-# Ignore uploads or generated data
+
 uploads/
 data/
