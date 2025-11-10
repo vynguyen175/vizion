@@ -1,0 +1,6 @@
+streamlit // runs the web interface
+pandas // handles csv files and math
+numpy // connects to a database
+SQLAlchemy // connects to a database
+python-dotenv // loads settings from .env files
+bcrypt // handles password hashing
