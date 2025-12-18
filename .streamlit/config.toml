@@ -1,0 +1,7 @@
+# Streamlit theme configuration
+[theme]
+primaryColor = "#38BDF8"          # accent color for buttons, links
+backgroundColor = "#0F172A"       # main page background
+secondaryBackgroundColor = "#111827"  # cards / containers / sidebar
+textColor = "#F9FAFB"             # main text color
+font = "sans serif"               # keep it simple and readable

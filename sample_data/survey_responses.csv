@@ -1,0 +1,11 @@
+RespondentID,Country,Gender,Satisfaction,Device
+1,Canada,Female,Happy,Mobile
+2,USA,Male,Neutral,Laptop
+3,Canada,Female,Unhappy,Tablet
+4,UK,Male,Happy,Mobile
+5,USA,Female,Happy,Laptop
+6,Canada,Male,Neutral,Mobile
+7,UK,Female,Happy,Tablet
+8,USA,Male,Unhappy,Desktop
+9,Canada,Female,Happy,Mobile
+10,USA,Female,Neutral,Laptop

@@ -1,0 +1,7 @@
+EmployeeID,Name,Department,StartDate,Salary,Bonus,FullTime
+E001,Alice,Sales,2021-01-15,55000,5000,True
+E002,Bob,Engineering,2020-06-01,72000,,True
+E003,Charlie,HR,2019-09-20,48000,3000,False
+E004,Diana,Sales,,60000,4000,True
+E005,Edward,Engineering,2022-03-10,,2500,True
+E006,Fiona,Marketing,2021-11-05,51000,,False

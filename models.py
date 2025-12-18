@@ -52,6 +52,14 @@ class AnalysisHistory(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     summary = Column(Text, nullable=True)  # JSON or text summary of analysis results
     insights = Column(Text, nullable=True)  # JSON or text insights derived from analysis
+    
+    # ML-specific fields
+    ml_task_type = Column(String, nullable=True)  # 'eda', 'classification', 'regression'
+    target_column = Column(String, nullable=True)  # Target variable for ML
+    model_type = Column(String, nullable=True)  # Model used (e.g., 'Random Forest')
+    accuracy = Column(String, nullable=True)  # Model accuracy or R² score
+    notebook_path = Column(String, nullable=True)  # Path to generated notebook
+    notebook_executed = Column(String, nullable=True)  # Path to executed notebook
 
     # Relationships
     dataset = relationship("Dataset", back_populates="analyses")

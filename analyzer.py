@@ -2,6 +2,84 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
+from typing import Dict, List
+
+
+def detect_column_types(df: pd.DataFrame) -> Dict[str, List[str]]:
+    """
+    Automatically detect column types in the DataFrame.
+    
+    Returns:
+        Dict with keys: 'numeric', 'categorical', 'datetime', 'text'
+    """
+    column_types = {
+        'numeric': [],
+        'categorical': [],
+        'datetime': [],
+        'text': []
+    }
+    
+    for col in df.columns:
+        # Check for datetime
+        if pd.api.types.is_datetime64_any_dtype(df[col]):
+            column_types['datetime'].append(col)
+        # Check for numeric
+        elif pd.api.types.is_numeric_dtype(df[col]):
+            column_types['numeric'].append(col)
+        # Check for text (long strings, high cardinality)
+        elif df[col].dtype == 'object':
+            # If average string length > 50 or unique ratio > 0.5, consider it text
+            unique_ratio = df[col].nunique() / len(df) if len(df) > 0 else 0
+            avg_length = df[col].astype(str).str.len().mean()
+            
+            if avg_length > 50 or unique_ratio > 0.5:
+                column_types['text'].append(col)
+            else:
+                column_types['categorical'].append(col)
+        else:
+            column_types['categorical'].append(col)
+    
+    return column_types
+
+
+def display_column_types(df: pd.DataFrame):
+    """Display detected column types in a nice format."""
+    col_types = detect_column_types(df)
+    
+    st.subheader("Column Type Detection")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Numeric", len(col_types['numeric']))
+        if col_types['numeric']:
+            with st.expander("View numeric columns"):
+                for col in col_types['numeric']:
+                    st.write(f"• {col}")
+    
+    with col2:
+        st.metric("Categorical", len(col_types['categorical']))
+        if col_types['categorical']:
+            with st.expander("View categorical columns"):
+                for col in col_types['categorical']:
+                    st.write(f"• {col}")
+    
+    with col3:
+        st.metric("Datetime", len(col_types['datetime']))
+        if col_types['datetime']:
+            with st.expander("View datetime columns"):
+                for col in col_types['datetime']:
+                    st.write(f"• {col}")
+    
+    with col4:
+        st.metric("Text", len(col_types['text']))
+        if col_types['text']:
+            with st.expander("View text columns"):
+                for col in col_types['text']:
+                    st.write(f"• {col}")
+    
+    return col_types
+
 
 def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
     # display stats, missing values and charts

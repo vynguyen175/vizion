@@ -6,3 +6,12 @@ python-dotenv
 bcrypt
 matplotlib
 seaborn
+scikit-learn
+nbformat
+papermill
+nbconvert
+jupyter
+reportlab
+jinja2
+xgboost
+imbalanced-learn
