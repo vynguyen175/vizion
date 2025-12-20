@@ -15,3 +15,5 @@ reportlab
 jinja2
 xgboost
 imbalanced-learn
+psycopg2-binary
+Pillow

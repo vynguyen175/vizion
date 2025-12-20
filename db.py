@@ -2,10 +2,15 @@ import os
 from sqlalchemy import create_engine 
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
-# get the database url from environment variable or use default sqlite
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///vizion.db")
+
+# Try to get DATABASE_URL from Streamlit secrets first, then environment variable
+try:
+    DATABASE_URL = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL", "sqlite:///vizion.db"))
+except:
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///vizion.db")
 
 # database engine - main connection to the database
 engine = create_engine(
