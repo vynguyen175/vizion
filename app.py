@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-import bcrypt
 import uuid
 from datetime import datetime
 import json
@@ -13,6 +12,14 @@ from cleaner import clean_data
 from notebook_generator import generate_ml_notebook, suggest_ml_task
 from notebook_runner import execute_notebook, get_execution_summary, convert_notebook_to_python, convert_notebook_to_html
 from report_generator import generate_model_card_pdf, generate_html_report
+from components.auth import render_auth_sidebar
+from components.notifications import (
+    send_welcome_email, 
+    send_analysis_complete_email, 
+    send_ml_notebook_ready_email,
+    can_send_notification,
+    mark_notification_sent
+)
 
 def inject_pro_theme_css():
     # global layout and component styling
@@ -79,82 +86,11 @@ st.title("Vizion")
 
 session = get_session()
 
-params = st.query_params
-if "uid" in params and st.session_state.get("user_id") is None:
-    uid = params["uid"]
-    if isinstance(uid, list):
-        uid = uid[0]
-    user = session.query(User).filter_by(id=uid).first()
-    if user:
-        st.session_state.user_id = user.id
-        st.session_state.email = user.email
+# Render authentication sidebar and get current user
+user = render_auth_sidebar(session, User)
 
-st.sidebar.header("Login or Register")
-
-if "user_id" not in st.session_state:
-    st.session_state.user_id = None
-if "email" not in st.session_state:
-    st.session_state.email = None
-
-if st.session_state.user_id is None:
-    tab_login, tab_register = st.sidebar.tabs(["Login", "Register"])
-
-    with tab_register:
-        st.subheader("Create your New Account")
-        name = st.text_input("Full Name")
-        email = st.text_input("Email")
-        pwd = st.text_input("Password", type="password")
-
-        if st.button("Register"):
-            if not name or not email or not pwd:
-                st.error("Please fill empty fields.")
-            else:
-                existing_user = session.query(User).filter_by(email=email).first()
-                if existing_user:
-                    st.error("User with this email already exists.")
-                else:
-                    hashed_pwd = bcrypt.hashpw(
-                        pwd.encode("utf-8"),
-                        bcrypt.gensalt()
-                    ).decode("utf-8")
-                    new_user = User(
-                        id=str(uuid.uuid4()),
-                        name=name,
-                        email=email,
-                        password_hash=hashed_pwd
-                    )
-                    session.add(new_user)
-                    session.commit()
-                    st.success("New account created! You can now log in.")
-
-    with tab_login:
-        st.subheader("Log in to your Account")
-        email_login = st.text_input("Email", key="login_email")
-        pwd_login = st.text_input("Password", type="password", key="login_pwd")
-
-        if st.button("Login"):
-            user = session.query(User).filter_by(email=email_login).first()
-            if user and bcrypt.checkpw(
-                pwd_login.encode("utf-8"),
-                user.password_hash.encode("utf-8")
-            ):
-                st.session_state.user_id = user.id
-                st.session_state.email = user.email
-                st.query_params["uid"] = user.id
-                st.success(f"Welcome back, {user.name}!")
-                st.rerun()
-            else:
-                st.error("Invalid email or password.")
-
-if st.session_state.user_id:
-    user = session.query(User).filter_by(id=st.session_state.user_id).first()
-    st.sidebar.write(f"Logged in as: {user.email}")
-
-    if st.sidebar.button("Logout"):
-        st.session_state.user_id = None
-        st.session_state.email = None
-        st.query_params.clear()
-        st.rerun()
+# Only show main app if user is logged in
+if user:
 
     with st.container():
         st.header("Your Analysis History")
@@ -286,6 +222,13 @@ if st.session_state.user_id:
                 session.add(analysis)
                 session.commit()
                 st.success("Analysis history saved.")
+                
+                # Send email notification
+                if can_send_notification(user):
+                    summary_html = f"<ul><li><strong>Rows:</strong> {len(df)}</li><li><strong>Columns:</strong> {len(df.columns)}</li></ul>"
+                    if send_analysis_complete_email(user, filename, summary_html):
+                        mark_notification_sent(session, user)
+                
                 st.session_state.editing_analysis_id = analysis.id
                 st.rerun()
 
@@ -546,6 +489,12 @@ if st.session_state.user_id:
                                                     )
                                         
                                         st.success("Complete ML pipeline executed successfully! Download your results above.")
+                                        
+                                        # Send email notification
+                                        if can_send_notification(user):
+                                            accuracy = metrics.get('accuracy') or metrics.get('r2_score')
+                                            if send_ml_notebook_ready_email(user, filename, metrics.get('model_name', 'ML Model'), accuracy):
+                                                mark_notification_sent(session, user)
                                     
                                     else:
                                         st.error(f"Notebook execution failed: {result.get('error', 'Unknown error')}")
@@ -598,3 +547,24 @@ if st.session_state.user_id:
                 session.commit()
                 st.success("Analysis updated.")
                 st.rerun()
+
+else:
+    # User not logged in - show welcome message
+    st.info("👈 Please log in or register to start analyzing your data with Vizion!")
+    
+    st.markdown("---")
+    
+    # Show features
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.subheader("📊 Data Analysis")
+        st.write("Upload CSV files and get instant insights with visualizations and statistics")
+    
+    with col2:
+        st.subheader("🤖 ML Notebooks")
+        st.write("Generate Jupyter notebooks with machine learning models tailored to your data")
+    
+    with col3:
+        st.subheader("📈 Professional Reports")
+        st.write("Download PDF and HTML reports of your analyses")

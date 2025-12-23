@@ -14,8 +14,17 @@ class User(Base):
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)  # Nullable for OAuth users
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # OAuth fields
+    oauth_provider = Column(String, nullable=True)  # 'google', 'email', etc.
+    oauth_id = Column(String, nullable=True)  # Provider's user ID
+    profile_picture = Column(String, nullable=True)  # Profile image URL
+    
+    # Notification preferences
+    email_notifications = Column(String, default="true")  # 'true' or 'false'
+    last_notification_sent = Column(DateTime, nullable=True)
 
     # Relationships
     datasets = relationship("Dataset", back_populates="owner")

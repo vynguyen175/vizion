@@ -17,3 +17,8 @@ xgboost
 imbalanced-learn
 psycopg2-binary
 Pillow
+streamlit-oauth
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+sendgrid
