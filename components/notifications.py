@@ -116,22 +116,22 @@ def send_welcome_email(user):
                 <h3>What you can do with Vizion:</h3>
                 
                 <div class="feature">
-                    <strong>📊 Upload & Analyze</strong><br>
+                    <strong>Upload & Analyze</strong><br>
                     Upload CSV files and get instant insights with visualizations and statistics
                 </div>
                 
                 <div class="feature">
-                    <strong>🤖 ML Notebooks</strong><br>
+                    <strong>ML Notebooks</strong><br>
                     Generate Jupyter notebooks with machine learning models tailored to your data
                 </div>
                 
                 <div class="feature">
-                    <strong>🧹 Data Cleaning</strong><br>
+                    <strong>Data Cleaning</strong><br>
                     Automatically clean and prepare your data for analysis
                 </div>
                 
                 <div class="feature">
-                    <strong>📈 Professional Reports</strong><br>
+                    <strong>Professional Reports</strong><br>
                     Download PDF and HTML reports of your analyses
                 </div>
                 

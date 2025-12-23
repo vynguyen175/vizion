@@ -259,9 +259,9 @@ def render_auth_sidebar(session, User):
                     redirect_uri = st.secrets["google_oauth"]["redirect_uri"]
                     render_google_signin_button(client_id, redirect_uri)
                 else:
-                    st.info("💡 Google Sign-In: Configure `google_oauth` in Streamlit secrets")
+                    st.info("Google Sign-In: Configure google_oauth in Streamlit secrets to enable")
             except Exception as e:
-                st.info("💡 Google Sign-In: Add credentials in Settings → Secrets")
+                st.info("Google Sign-In: Add credentials in Settings to enable")
             
             st.markdown("---")
             st.markdown("### Or use Email/Password")
@@ -285,9 +285,9 @@ def render_auth_sidebar(session, User):
                     redirect_uri = st.secrets["google_oauth"]["redirect_uri"]
                     render_google_signin_button(client_id, redirect_uri)
                 else:
-                    st.info("💡 Google Sign-In: Configure `google_oauth` in Streamlit secrets")
+                    st.info("Google Sign-In: Configure google_oauth in Streamlit secrets to enable")
             except Exception as e:
-                st.info("💡 Google Sign-In: Add credentials in Settings → Secrets")
+                st.info("Google Sign-In: Add credentials in Settings to enable")
             
             st.markdown("---")
             st.markdown("### Or use Email/Password")
@@ -321,13 +321,13 @@ def render_auth_sidebar(session, User):
             st.sidebar.image(user.profile_picture, width=80)
         
         st.sidebar.write(f"**{user.name}**")
-        st.sidebar.write(f"📧 {user.email}")
+        st.sidebar.write(f"Email: {user.email}")
         
         if user.oauth_provider and user.oauth_provider != 'email':
             st.sidebar.caption(f"Signed in with {user.oauth_provider.title()}")
         
         # Notification settings
-        with st.sidebar.expander("⚙️ Notification Settings"):
+        with st.sidebar.expander("Notification Settings"):
             current_pref = user.email_notifications == 'true'
             new_pref = st.checkbox(
                 "Email notifications", 

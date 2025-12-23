@@ -434,7 +434,7 @@ def generate_html_report(
     </div>
     
     <div class="section">
-        <h2>📊 Dataset Summary</h2>
+        <h2>Dataset Summary</h2>
         <div class="metric">
             <div class="metric-label">Total Rows</div>
             <div class="metric-value">{dataset_info.get('rows', 'N/A'):,}</div>
@@ -450,7 +450,7 @@ def generate_html_report(
     </div>
     
     <div class="section">
-        <h2>⚙️ ML Configuration</h2>
+        <h2>ML Configuration</h2>
         <table>
             <tr>
                 <th>Configuration</th>
@@ -472,12 +472,12 @@ def generate_html_report(
     </div>
     
     <div class="section">
-        <h2>📈 Model Performance</h2>
+        <h2>Model Performance</h2>
         {execution_summary}
     </div>
     
     <div class="section">
-        <h2>💡 Recommendations</h2>
+        <h2>Recommendations</h2>
         {''.join([f'<div class="recommendation">{rec}</div>' for rec in generate_recommendations(ml_config, metrics, dataset_info)])}
     </div>
     

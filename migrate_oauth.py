@@ -58,11 +58,11 @@ def migrate_database():
                             # PostgreSQL syntax
                             conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
                         conn.commit()
-                        print(f"✓ Added column: {col_name}")
+                        print(f"[OK] Added column: {col_name}")
                     except Exception as e:
-                        print(f"✗ Error adding {col_name}: {e}")
+                        print(f"[ERROR] Error adding {col_name}: {e}")
                 else:
-                    print(f"→ Column {col_name} already exists")
+                    print(f"[SKIP] Column {col_name} already exists")
             
             # Update existing users to have oauth_provider = 'email'
             try:
@@ -71,9 +71,9 @@ def migrate_database():
                     "WHERE oauth_provider IS NULL"
                 ))
                 conn.commit()
-                print("✓ Updated existing users with oauth_provider='email'")
+                print("[OK] Updated existing users with oauth_provider='email'")
             except Exception as e:
-                print(f"✗ Error updating users: {e}")
+                print(f"[ERROR] Error updating users: {e}")
             
             # Make password_hash nullable for OAuth users
             try:
@@ -82,15 +82,15 @@ def migrate_database():
                         "ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"
                     ))
                     conn.commit()
-                    print("✓ Made password_hash nullable")
+                    print("[OK] Made password_hash nullable")
             except Exception as e:
                 print(f"Note: Could not make password_hash nullable: {e}")
         
-        print("\n✓ Migration completed successfully!")
+        print("\n[SUCCESS] Migration completed successfully!")
         return True
         
     except Exception as e:
-        print(f"\n✗ Migration failed: {str(e)}")
+        print(f"\n[ERROR] Migration failed: {str(e)}")
         return False
 
 if __name__ == "__main__":

@@ -30,9 +30,9 @@ def test_imports():
     for package_import, package_name in required_packages:
         try:
             importlib.import_module(package_import)
-            print(f"✅ {package_name:20s} - OK")
+            print(f"[OK]  {package_name:20s} - OK")
         except ImportError:
-            print(f"❌ {package_name:20s} - MISSING")
+            print(f"[FAIL] {package_name:20s} - MISSING")
             all_good = False
     
     print("=" * 60)
@@ -65,18 +65,18 @@ def test_modules():
     for module in modules:
         try:
             importlib.import_module(module)
-            print(f"✅ {module:25s} - OK")
+            print(f"[OK]  {module:25s} - OK")
         except Exception as e:
-            print(f"❌ {module:25s} - ERROR: {str(e)[:40]}")
+            print(f"[FAIL] {module:25s} - ERROR: {str(e)[:40]}")
             all_good = False
     
     print("=" * 60)
     
     if all_good:
-        print("\n🎉 All custom modules loaded successfully!")
+        print("\n[PASS] All custom modules loaded successfully!")
         return True
     else:
-        print("\n❌ Some modules have errors. Check the files above.")
+        print("\n[FAIL] Some modules have errors. Check the files above.")
         return False
 
 
@@ -119,7 +119,7 @@ def test_functions():
 
 def main():
     """Run all tests."""
-    print("\n" + "🔍 VIZION ML INTEGRATION TEST".center(60))
+    print("\n" + "VIZION ML INTEGRATION TEST".center(60))
     print("=" * 60 + "\n")
     
     test1 = test_imports()

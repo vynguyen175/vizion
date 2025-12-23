@@ -238,7 +238,7 @@ if user:
             
             st.info("**New Feature!** Automatically generate a Jupyter notebook with ML analysis, train models, and get professional reports.")
             
-            with st.expander("📘 What is this?", expanded=False):
+            with st.expander("What is this?", expanded=False):
                 st.markdown("""
                 This feature automatically:
                 - Generates a complete Jupyter notebook with ML code
@@ -304,7 +304,7 @@ if user:
                 model_type = model_options[selected_model]
                 
                 if model_type is None:
-                    st.caption("🔄 Multiple models will be trained and the best one will be selected automatically.")
+                    st.caption("Multiple models will be trained and the best one will be selected automatically.")
                 else:
                     st.caption(f"Will use {selected_model}")
             
@@ -550,7 +550,7 @@ if user:
 
 else:
     # User not logged in - show welcome message
-    st.info("👈 Please log in or register to start analyzing your data with Vizion!")
+    st.info("Please log in or register to start analyzing your data with Vizion!")
     
     st.markdown("---")
     
@@ -558,13 +558,13 @@ else:
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.subheader("📊 Data Analysis")
+        st.subheader("Data Analysis")
         st.write("Upload CSV files and get instant insights with visualizations and statistics")
     
     with col2:
-        st.subheader("🤖 ML Notebooks")
+        st.subheader("ML Notebooks")
         st.write("Generate Jupyter notebooks with machine learning models tailored to your data")
     
     with col3:
-        st.subheader("📈 Professional Reports")
+        st.subheader("Professional Reports")
         st.write("Download PDF and HTML reports of your analyses")

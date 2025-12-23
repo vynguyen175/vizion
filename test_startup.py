@@ -11,49 +11,49 @@ def test_imports():
     
     try:
         import streamlit as st
-        print("✓ streamlit")
+        print("[OK] streamlit")
     except Exception as e:
         errors.append(f"streamlit: {e}")
     
     try:
         import pandas as pd
-        print("✓ pandas")
+        print("[OK] pandas")
     except Exception as e:
         errors.append(f"pandas: {e}")
     
     try:
         import bcrypt
-        print("✓ bcrypt")
+        print("[OK] bcrypt")
     except Exception as e:
         errors.append(f"bcrypt: {e}")
     
     try:
         from sqlalchemy import create_engine
-        print("✓ sqlalchemy")
+        print("[OK] sqlalchemy")
     except Exception as e:
         errors.append(f"sqlalchemy: {e}")
     
     try:
         import nbformat
-        print("✓ nbformat")
+        print("[OK] nbformat")
     except Exception as e:
         errors.append(f"nbformat: {e}")
     
     try:
         import papermill
-        print("✓ papermill")
+        print("[OK] papermill")
     except Exception as e:
         errors.append(f"papermill: {e}")
     
     try:
         import sklearn
-        print("✓ scikit-learn")
+        print("[OK] scikit-learn")
     except Exception as e:
         errors.append(f"scikit-learn: {e}")
     
     try:
         from reportlab.lib.pagesizes import letter
-        print("✓ reportlab")
+        print("[OK] reportlab")
     except Exception as e:
         errors.append(f"reportlab: {e}")
     
@@ -65,37 +65,37 @@ def test_local_imports():
     
     try:
         from db import get_session, engine, Base
-        print("✓ db module")
+        print("[OK] db module")
     except Exception as e:
         errors.append(f"db module: {e}")
     
     try:
         from models import User, Dataset, AnalysisHistory
-        print("✓ models module")
+        print("[OK] models module")
     except Exception as e:
         errors.append(f"models module: {e}")
     
     try:
         from analyzer import analyze_csv
-        print("✓ analyzer module")
+        print("[OK] analyzer module")
     except Exception as e:
         errors.append(f"analyzer module: {e}")
     
     try:
         from notebook_generator import generate_ml_notebook
-        print("✓ notebook_generator module")
+        print("[OK] notebook_generator module")
     except Exception as e:
         errors.append(f"notebook_generator module: {e}")
     
     try:
         from notebook_runner import execute_notebook
-        print("✓ notebook_runner module")
+        print("[OK] notebook_runner module")
     except Exception as e:
         errors.append(f"notebook_runner module: {e}")
     
     try:
         from report_generator import generate_model_card_pdf
-        print("✓ report_generator module")
+        print("[OK] report_generator module")
     except Exception as e:
         errors.append(f"report_generator module: {e}")
     
@@ -120,12 +120,12 @@ if __name__ == "__main__":
     print("=" * 60)
     
     if not ext_errors and not local_errors:
-        print("\n✓ ALL TESTS PASSED!")
+        print("\n[PASS] ALL TESTS PASSED!")
         print("\nYour app should start successfully.")
         print("Run: streamlit run app.py")
         sys.exit(0)
     else:
-        print("\n✗ ERRORS FOUND:")
+        print("\n[FAIL] ERRORS FOUND:")
         for error in ext_errors + local_errors:
             print(f"  - {error}")
         print("\nFix these errors before deploying.")
