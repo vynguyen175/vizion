@@ -8,8 +8,9 @@ import bcrypt
 import uuid
 from datetime import datetime
 from google.oauth2 import id_token
-from google.auth.transport import requests
+from google.auth.transport import requests as google_requests
 import json
+import requests as http_requests
 
 
 def get_google_oauth_url(client_id, redirect_uri):
@@ -30,12 +31,50 @@ def get_google_oauth_url(client_id, redirect_uri):
     return f"{base_url}?{query_string}"
 
 
+def exchange_code_for_token(code, client_id, client_secret, redirect_uri):
+    """Exchange authorization code for access token."""
+    token_url = "https://oauth2.googleapis.com/token"
+    
+    data = {
+        "code": code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": redirect_uri,
+        "grant_type": "authorization_code"
+    }
+    
+    try:
+        response = http_requests.post(token_url, data=data)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        st.error(f"Token exchange failed: {str(e)}")
+        return None
+
+
+def get_user_info_from_token(access_token):
+    """Get user info from Google using access token."""
+    userinfo_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    try:
+        response = http_requests.get(userinfo_url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        st.error(f"Failed to get user info: {str(e)}")
+        return None
+
+
 def verify_google_token(token, client_id):
     """Verify Google ID token and return user info."""
     try:
         idinfo = id_token.verify_oauth2_token(
             token, 
-            requests.Request(), 
+            google_requests.Request(), 
             client_id
         )
         
@@ -99,25 +138,78 @@ def handle_oauth_callback(session, User):
         if isinstance(code, list):
             code = code[0]
         
-        # In production, exchange code for token here
-        # For now, we'll use a simplified flow
-        st.info("OAuth code received. In production, this would exchange for user info.")
-        return None
-    
-    # Check for stored OAuth info (simplified flow)
-    if "oauth_info" in st.session_state:
-        oauth_info = st.session_state.oauth_info
+        # Get OAuth config
+        try:
+            client_id = st.secrets["google_oauth"]["client_id"]
+            client_secret = st.secrets["google_oauth"].get("client_secret", "")
+            redirect_uri = st.secrets["google_oauth"]["redirect_uri"]
+        except:
+            st.error("OAuth configuration missing")
+            return None
+        
+        # Exchange code for tokens
+        token_response = exchange_code_for_token(code, client_id, client_secret, redirect_uri)
+        
+        if not token_response:
+            st.error("Failed to exchange authorization code for token")
+            return None
+        
+        # Get user info
+        access_token = token_response.get("access_token")
+        id_token_jwt = token_response.get("id_token")
+        
+        if id_token_jwt:
+            # Verify and decode ID token
+            user_info = verify_google_token(id_token_jwt, client_id)
+        elif access_token:
+            # Fallback to userinfo endpoint
+            user_info = get_user_info_from_token(access_token)
+            if user_info:
+                user_info = {
+                    'oauth_id': user_info.get('id'),
+                    'email': user_info.get('email'),
+                    'name': user_info.get('name', ''),
+                    'profile_picture': user_info.get('picture', ''),
+                    'email_verified': user_info.get('verified_email', False)
+                }
+        else:
+            st.error("No valid token received")
+            return None
+        
+        if not user_info:
+            st.error("Failed to get user information from Google")
+            return None
         
         # Check if user exists
-        user = session.query(User).filter_by(email=oauth_info['email']).first()
+        user = session.query(User).filter_by(email=user_info['email']).first()
         
         if user:
             # Update OAuth info
             user.oauth_provider = 'google'
-            user.oauth_id = oauth_info['oauth_id']
-            user.profile_picture = oauth_info.get('profile_picture')
+            user.oauth_id = user_info['oauth_id']
+            user.profile_picture = user_info.get('profile_picture')
         else:
             # Create new user
+            user = User(
+                id=str(uuid.uuid4()),
+                name=user_info['name'] or user_info['email'].split('@')[0],
+                email=user_info['email'],
+                password_hash=None,
+                oauth_provider='google',
+                oauth_id=user_info['oauth_id'],
+                profile_picture=user_info.get('profile_picture'),
+                email_notifications='true'
+            )
+            session.add(user)
+        
+        session.commit()
+        
+        # Clear query params
+        st.query_params.clear()
+        
+        return user
+    
+    return None
             user = User(
                 id=str(uuid.uuid4()),
                 name=oauth_info['name'],
