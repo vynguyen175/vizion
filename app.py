@@ -30,357 +30,412 @@ def inject_pro_theme_css():
 
     theme = st.session_state.theme
 
+    # Define colors based on theme
+    if theme == 'dark':
+        bg_primary = "#0F172A"
+        bg_secondary = "#1E293B"
+        bg_card = "#1E293B"
+        text_primary = "#F8FAFC"
+        text_secondary = "#94A3B8"
+        text_muted = "#64748B"
+        border_color = "#334155"
+        shadow = "0 1px 3px rgba(0,0,0,0.3)"
+        shadow_lg = "0 10px 25px rgba(0,0,0,0.3)"
+    else:
+        bg_primary = "#F8FAFC"
+        bg_secondary = "#F1F5F9"
+        bg_card = "#FFFFFF"
+        text_primary = "#0F172A"
+        text_secondary = "#64748B"
+        text_muted = "#94A3B8"
+        border_color = "#E2E8F0"
+        shadow = "0 1px 3px rgba(0,0,0,0.08)"
+        shadow_lg = "0 10px 25px rgba(0,0,0,0.1)"
+
     st.markdown(
         f"""
         <style>
-        /* Import Inter font */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        /* Import Inter font and Material Icons */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-        /* CSS Variables */
+        /* CSS Variables - Using actual values for better compatibility */
         :root {{
             --primary: #0D9488;
             --primary-light: #14B8A6;
             --primary-dark: #0F766E;
+            --primary-50: rgba(13, 148, 136, 0.1);
             --success: #10B981;
             --warning: #F59E0B;
             --error: #EF4444;
             --info: #3B82F6;
+            --bg-primary: {bg_primary};
+            --bg-secondary: {bg_secondary};
+            --bg-card: {bg_card};
+            --text-primary: {text_primary};
+            --text-secondary: {text_secondary};
+            --text-muted: {text_muted};
+            --border-color: {border_color};
+            --shadow: {shadow};
+            --shadow-lg: {shadow_lg};
         }}
 
-        /* Light theme variables */
-        .light-theme {{
-            --bg-primary: #F8FAFC;
-            --bg-secondary: #F1F5F9;
-            --bg-card: #FFFFFF;
-            --text-primary: #0F172A;
-            --text-secondary: #64748B;
-            --text-muted: #94A3B8;
-            --border-color: #E2E8F0;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-            --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        /* Global font */
+        * {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
         }}
 
-        /* Dark theme variables */
-        .dark-theme {{
-            --bg-primary: #0F172A;
-            --bg-secondary: #1E293B;
-            --bg-card: #1E293B;
-            --text-primary: #F8FAFC;
-            --text-secondary: #94A3B8;
-            --text-muted: #64748B;
-            --border-color: #334155;
-            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-            --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
-        }}
-
-        /* Apply theme class to root */
+        /* Main app background */
         .stApp {{
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            background-color: {bg_primary} !important;
         }}
 
         /* Main container */
         .block-container {{
             max-width: 1200px;
-            padding-top: 1rem;
-            padding-bottom: 4rem;
+            padding: 2rem 1rem 4rem 1rem;
+        }}
+
+        /* All text elements */
+        p, span, label, div {{
+            color: {text_primary};
         }}
 
         /* Headers */
-        h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-            font-family: 'Inter', sans-serif !important;
+        h1, h2, h3, h4, h5, h6,
+        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
             font-weight: 700 !important;
+            color: {text_primary} !important;
+            letter-spacing: -0.025em;
         }}
 
-        /* Cards styling */
-        .stExpander, [data-testid="stExpander"] {{
-            background-color: var(--bg-card) !important;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 12px !important;
-            box-shadow: var(--shadow) !important;
-            overflow: hidden;
+        h1 {{ font-size: 2rem !important; }}
+        h2 {{ font-size: 1.5rem !important; }}
+        h3 {{ font-size: 1.25rem !important; }}
+
+        /* Sidebar */
+        [data-testid="stSidebar"] {{
+            background-color: {bg_card} !important;
+            border-right: 1px solid {border_color} !important;
         }}
 
-        .streamlit-expanderHeader {{
-            font-weight: 600 !important;
-            font-family: 'Inter', sans-serif !important;
+        [data-testid="stSidebar"] > div:first-child {{
+            padding-top: 1rem;
         }}
 
-        /* Metric cards */
-        [data-testid="metric-container"] {{
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: var(--shadow);
+        [data-testid="stSidebarHeader"] {{
+            padding: 1rem 1rem 0 1rem;
         }}
 
-        [data-testid="stMetricValue"] {{
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 700 !important;
-            color: var(--primary) !important;
+        /* Sidebar text */
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] label {{
+            color: {text_primary} !important;
         }}
 
-        [data-testid="stMetricLabel"] {{
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 500 !important;
-            text-transform: uppercase;
-            font-size: 0.75rem !important;
-            letter-spacing: 0.05em;
-        }}
-
-        /* Buttons - Pill shaped with teal accent */
+        /* Buttons - Modern pill style */
         .stButton > button {{
-            font-family: 'Inter', sans-serif !important;
-            border-radius: 9999px !important;
-            padding: 0.5rem 1.5rem !important;
+            border-radius: 10px !important;
+            padding: 0.625rem 1.25rem !important;
             font-weight: 600 !important;
             font-size: 0.875rem !important;
-            border: 1px solid var(--primary) !important;
+            border: 1.5px solid #0D9488 !important;
             background-color: transparent !important;
-            color: var(--primary) !important;
-            transition: all 0.2s ease !important;
-            box-shadow: var(--shadow) !important;
+            color: #0D9488 !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: none !important;
+            min-height: 42px !important;
         }}
 
         .stButton > button:hover {{
-            background-color: var(--primary) !important;
+            background-color: #0D9488 !important;
             color: white !important;
-            box-shadow: var(--shadow-lg) !important;
-            transform: translateY(-1px);
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
         }}
 
+        .stButton > button:active {{
+            transform: translateY(0) !important;
+        }}
+
+        /* Primary buttons */
         .stButton > button[kind="primary"],
         .stButton > button[data-testid="baseButton-primary"] {{
-            background-color: var(--primary) !important;
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%) !important;
             color: white !important;
-            border-color: var(--primary) !important;
+            border: none !important;
         }}
 
         .stButton > button[kind="primary"]:hover,
         .stButton > button[data-testid="baseButton-primary"]:hover {{
-            background-color: var(--primary-dark) !important;
-            border-color: var(--primary-dark) !important;
+            background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%) !important;
+            box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4) !important;
         }}
 
         /* Download buttons */
         .stDownloadButton > button {{
-            font-family: 'Inter', sans-serif !important;
-            border-radius: 9999px !important;
-            padding: 0.5rem 1.5rem !important;
+            border-radius: 10px !important;
+            padding: 0.625rem 1.25rem !important;
             font-weight: 600 !important;
-            border: 1px solid var(--primary) !important;
-            background-color: var(--primary) !important;
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%) !important;
             color: white !important;
+            border: none !important;
             transition: all 0.2s ease !important;
         }}
 
         .stDownloadButton > button:hover {{
-            background-color: var(--primary-dark) !important;
-            box-shadow: var(--shadow-lg) !important;
+            box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4) !important;
+            transform: translateY(-1px) !important;
+        }}
+
+        /* Expanders / Cards */
+        .stExpander, [data-testid="stExpander"] {{
+            background-color: {bg_card} !important;
+            border: 1px solid {border_color} !important;
+            border-radius: 16px !important;
+            box-shadow: {shadow} !important;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }}
+
+        .streamlit-expanderHeader {{
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            color: {text_primary} !important;
+            padding: 1rem 1.25rem !important;
+        }}
+
+        .streamlit-expanderContent {{
+            padding: 0 1.25rem 1.25rem 1.25rem !important;
+        }}
+
+        /* Metrics */
+        [data-testid="metric-container"] {{
+            background-color: {bg_card} !important;
+            border: 1px solid {border_color} !important;
+            border-radius: 16px !important;
+            padding: 1.25rem !important;
+            box-shadow: {shadow} !important;
+        }}
+
+        [data-testid="stMetricValue"] {{
+            font-weight: 800 !important;
+            font-size: 1.75rem !important;
+            color: #0D9488 !important;
+        }}
+
+        [data-testid="stMetricLabel"] {{
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            font-size: 0.7rem !important;
+            letter-spacing: 0.05em !important;
+            color: {text_secondary} !important;
         }}
 
         /* File uploader */
         [data-testid="stFileUploader"] {{
-            background-color: var(--bg-card) !important;
-            border: 2px dashed var(--border-color) !important;
-            border-radius: 12px !important;
-            padding: 1.5rem !important;
-            transition: border-color 0.2s ease;
+            background-color: {bg_card} !important;
+            border: 2px dashed {border_color} !important;
+            border-radius: 16px !important;
+            padding: 2rem !important;
+            transition: all 0.2s ease !important;
         }}
 
         [data-testid="stFileUploader"]:hover {{
-            border-color: var(--primary) !important;
+            border-color: #0D9488 !important;
+            background-color: rgba(13, 148, 136, 0.02) !important;
         }}
 
         /* Data frames / tables */
         .stDataFrame, [data-testid="stDataFrame"] {{
-            border-radius: 12px !important;
+            border-radius: 16px !important;
             overflow: hidden !important;
-            box-shadow: var(--shadow) !important;
-            border: 1px solid var(--border-color) !important;
+            box-shadow: {shadow} !important;
+            border: 1px solid {border_color} !important;
         }}
 
-        .dataframe {{
-            border-radius: 12px !important;
-        }}
-
-        /* Selectbox and inputs */
-        .stSelectbox > div > div,
+        /* Inputs */
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea {{
-            border-radius: 8px !important;
-            border-color: var(--border-color) !important;
-            font-family: 'Inter', sans-serif !important;
+            border-radius: 10px !important;
+            border: 1.5px solid {border_color} !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.95rem !important;
+            background-color: {bg_card} !important;
+            color: {text_primary} !important;
+            transition: all 0.2s ease !important;
         }}
 
-        .stSelectbox > div > div:focus-within,
         .stTextInput > div > div > input:focus,
         .stTextArea > div > div > textarea:focus {{
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2) !important;
+            border-color: #0D9488 !important;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
+            outline: none !important;
+        }}
+
+        /* Selectbox */
+        .stSelectbox > div > div {{
+            border-radius: 10px !important;
+            border: 1.5px solid {border_color} !important;
+            background-color: {bg_card} !important;
+        }}
+
+        .stSelectbox > div > div:focus-within {{
+            border-color: #0D9488 !important;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
         }}
 
         /* Tabs */
         .stTabs [data-baseweb="tab-list"] {{
-            gap: 8px;
+            gap: 0.5rem;
+            background-color: {bg_secondary};
+            padding: 0.375rem;
+            border-radius: 12px;
         }}
 
         .stTabs [data-baseweb="tab"] {{
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 500 !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
             border-radius: 8px !important;
-            padding: 0.5rem 1rem !important;
+            padding: 0.625rem 1rem !important;
+            color: {text_secondary} !important;
+            background-color: transparent !important;
         }}
 
         .stTabs [aria-selected="true"] {{
-            background-color: var(--primary) !important;
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%) !important;
             color: white !important;
+            box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3) !important;
         }}
 
-        /* Info, success, warning, error boxes */
+        /* Alerts */
         .stAlert {{
             border-radius: 12px !important;
-            font-family: 'Inter', sans-serif !important;
+            border: none !important;
+            padding: 1rem 1.25rem !important;
         }}
 
-        /* Sidebar styling */
-        [data-testid="stSidebar"] {{
-            background-color: var(--bg-card) !important;
-            border-right: 1px solid var(--border-color) !important;
+        [data-testid="stAlert"] > div {{
+            padding: 0 !important;
         }}
 
-        [data-testid="stSidebar"] .stMarkdown {{
-            font-family: 'Inter', sans-serif !important;
-        }}
-
-        /* Progress bars and spinners */
-        .stProgress > div > div {{
-            background-color: var(--primary) !important;
+        /* Info alert */
+        .stAlert[data-baseweb="notification"] {{
+            background-color: rgba(13, 148, 136, 0.1) !important;
+            border-left: 4px solid #0D9488 !important;
         }}
 
         /* Checkbox */
         .stCheckbox label {{
-            font-family: 'Inter', sans-serif !important;
+            font-size: 0.95rem !important;
+            color: {text_primary} !important;
         }}
 
-        /* Custom card class */
-        .vizion-card {{
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 1rem;
+        .stCheckbox label span {{
+            color: {text_primary} !important;
         }}
 
-        /* Stat card */
-        .stat-card {{
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.25rem;
-            box-shadow: var(--shadow);
+        /* Progress bar */
+        .stProgress > div > div {{
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%) !important;
+            border-radius: 999px !important;
         }}
 
-        .stat-card .stat-label {{
-            font-size: 0.625rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }}
-
-        .stat-card .stat-value {{
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }}
-
-        .stat-card .stat-trend {{
-            font-size: 0.625rem;
-            font-weight: 500;
-            margin-top: 0.25rem;
-        }}
-
-        .stat-card .stat-trend.positive {{
-            color: var(--success);
-        }}
-
-        .stat-card .stat-trend.negative {{
-            color: var(--error);
-        }}
-
-        /* Section header */
-        .section-header {{
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }}
-
-        .section-header .icon {{
-            width: 2rem;
-            height: 2rem;
-            background-color: var(--primary);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }}
-
-        .section-header h2 {{
-            margin: 0;
-            font-size: 1.125rem;
-            font-weight: 700;
-        }}
-
-        /* Theme toggle button */
-        .theme-toggle {{
-            position: fixed;
-            top: 0.75rem;
-            right: 1rem;
-            z-index: 1000;
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            padding: 0.5rem;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: all 0.2s ease;
-        }}
-
-        .theme-toggle:hover {{
-            box-shadow: var(--shadow-lg);
-        }}
-
-        /* Divider */
+        /* Dividers */
         hr {{
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 1.5rem 0;
+            border: none !important;
+            border-top: 1px solid {border_color} !important;
+            margin: 2rem 0 !important;
         }}
 
         /* Links */
         a {{
-            color: var(--primary) !important;
+            color: #0D9488 !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
         }}
 
         a:hover {{
-            color: var(--primary-dark) !important;
+            color: #0F766E !important;
+            text-decoration: underline !important;
         }}
-        </style>
 
-        <!-- Apply theme class -->
-        <script>
-            const theme = '{theme}';
-            const stApp = window.parent.document.querySelector('.stApp');
-            if (stApp) {{
-                stApp.classList.remove('light-theme', 'dark-theme');
-                stApp.classList.add(theme + '-theme');
-            }}
-        </script>
+        /* Feature cards for landing page */
+        .feature-card {{
+            background: {bg_card};
+            border: 1px solid {border_color};
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }}
+
+        .feature-card:hover {{
+            transform: translateY(-4px);
+            box-shadow: {shadow_lg};
+            border-color: #0D9488;
+        }}
+
+        .feature-card .icon {{
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem auto;
+            color: #0D9488;
+            font-size: 1.75rem;
+        }}
+
+        .feature-card h3 {{
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 0.75rem !important;
+            color: {text_primary} !important;
+        }}
+
+        .feature-card p {{
+            font-size: 0.95rem !important;
+            color: {text_secondary} !important;
+            line-height: 1.6 !important;
+            margin: 0 !important;
+        }}
+
+        /* Hero section */
+        .hero-section {{
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-bottom: 2rem;
+        }}
+
+        .hero-section h1 {{
+            font-size: 2.5rem !important;
+            font-weight: 800 !important;
+            margin-bottom: 1rem !important;
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }}
+
+        .hero-section p {{
+            font-size: 1.125rem !important;
+            color: {text_secondary} !important;
+            max-width: 600px;
+            margin: 0 auto !important;
+        }}
+
+        /* Hide Streamlit branding */
+        #MainMenu {{visibility: hidden;}}
+        footer {{visibility: hidden;}}
+        </style>
         """,
         unsafe_allow_html=True,
     )
@@ -390,16 +445,54 @@ def render_theme_toggle():
     """Render theme toggle button in sidebar."""
     current_theme = st.session_state.get('theme', 'light')
 
-    col1, col2 = st.sidebar.columns([3, 1])
-    with col2:
-        if current_theme == 'light':
-            if st.button("Dark", key="theme_toggle", help="Switch to dark mode"):
-                st.session_state.theme = 'dark'
-                st.rerun()
-        else:
-            if st.button("Light", key="theme_toggle", help="Switch to light mode"):
-                st.session_state.theme = 'light'
-                st.rerun()
+    # Use custom HTML for a nicer theme toggle
+    if current_theme == 'light':
+        icon = "dark_mode"
+        label = "Dark Mode"
+        new_theme = "dark"
+    else:
+        icon = "light_mode"
+        label = "Light Mode"
+        new_theme = "light"
+
+    st.sidebar.markdown(
+        f"""
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <style>
+            .theme-toggle-btn {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                width: 100%;
+                padding: 10px 16px;
+                background: var(--bg-card, white);
+                border: 1px solid var(--border-color, #E2E8F0);
+                border-radius: 8px;
+                color: var(--text-primary, #0F172A);
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                margin-bottom: 16px;
+            }}
+            .theme-toggle-btn:hover {{
+                border-color: #0D9488;
+                background: rgba(13, 148, 136, 0.05);
+            }}
+            .theme-toggle-btn .material-icons {{
+                font-size: 18px;
+                color: #0D9488;
+            }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if st.sidebar.button(f"{label}", key="theme_toggle", use_container_width=True):
+        st.session_state.theme = new_theme
+        st.rerun()
 
 # intial setup
 # Create database tables if they don't exist
@@ -410,25 +503,47 @@ st.set_page_config(page_title="Vizion", page_icon=None, layout="wide")
 inject_pro_theme_css()
 
 # Styled header with logo
+theme = st.session_state.get('theme', 'light')
+text_secondary = "#94A3B8" if theme == 'dark' else "#64748B"
+
 st.markdown(
-    """
-    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+    f"""
+    <div style="
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color, #E2E8F0);
+    ">
         <div style="
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 52px;
+            height: 52px;
             background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
-            border-radius: 10px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: bold;
-            font-size: 1.25rem;
+            font-weight: 800;
+            font-size: 1.5rem;
             font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
         ">V</div>
         <div>
-            <h1 style="margin: 0; font-size: 1.75rem; font-weight: 700; font-family: 'Inter', sans-serif;">Vizion</h1>
-            <p style="margin: 0; font-size: 0.875rem; color: #64748B; font-family: 'Inter', sans-serif;">Data Analysis & ML Platform</p>
+            <h1 style="
+                margin: 0;
+                font-size: 1.875rem;
+                font-weight: 800;
+                font-family: 'Inter', sans-serif;
+                letter-spacing: -0.025em;
+            ">Vizion</h1>
+            <p style="
+                margin: 0;
+                font-size: 0.9rem;
+                color: {text_secondary};
+                font-family: 'Inter', sans-serif;
+            ">Data Analysis & ML Platform</p>
         </div>
     </div>
     """,
@@ -445,7 +560,27 @@ user = render_auth_sidebar(session, User)
 if user:
 
     with st.container():
-        st.header("Your Analysis History")
+        st.markdown(
+            """
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="
+                    width: 40px;
+                    height: 40px;
+                    background: linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #0D9488;
+                ">
+                    <span class="material-icons-outlined">history</span>
+                </div>
+                <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Your Analysis History</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         user_analyses = (
             session.query(AnalysisHistory)
@@ -497,7 +632,26 @@ if user:
         else:
             st.info("No analysis history found. Upload and analyze a dataset to get started!")
     with st.container():
-        st.header("Upload your CSV File to Analyze")
+        st.markdown(
+            """
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin: 2rem 0 1rem 0;">
+                <div style="
+                    width: 40px;
+                    height: 40px;
+                    background: linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #0D9488;
+                ">
+                    <span class="material-icons-outlined">upload_file</span>
+                </div>
+                <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Upload CSV File</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         uploaded = st.file_uploader("Choose a CSV file", type=["csv"])
 
@@ -586,7 +740,26 @@ if user:
 
             # ML NOTEBOOK SECTION
             st.markdown("---")
-            st.header("Generate ML Notebook & Analysis")
+            st.markdown(
+                """
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        background: linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+                        border-radius: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #0D9488;
+                    ">
+                        <span class="material-icons-outlined">psychology</span>
+                    </div>
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Generate ML Notebook & Analysis</h2>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
             
             st.info("**New Feature!** Automatically generate a Jupyter notebook with ML analysis, train models, and get professional reports.")
             
@@ -901,22 +1074,66 @@ if user:
                 st.rerun()
 
 else:
-    # User not logged in - show welcome message
-    st.info("Please log in or register to start analyzing your data with Vizion!")
-    
-    st.markdown("---")
-    
-    # Show features
-    col1, col2, col3 = st.columns(3)
-    
+    # User not logged in - show beautiful landing page
+
+    # Hero section
+    st.markdown(
+        """
+        <div class="hero-section">
+            <h1>Welcome to Vizion</h1>
+            <p>Transform your data into actionable insights with powerful analysis tools,
+            machine learning notebooks, and professional reports.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Call to action
+    st.info("Please log in or register using the sidebar to start analyzing your data!")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Feature cards
+    col1, col2, col3 = st.columns(3, gap="large")
+
     with col1:
-        st.subheader("Data Analysis")
-        st.write("Upload CSV files and get instant insights with visualizations and statistics")
-    
+        st.markdown(
+            """
+            <div class="feature-card">
+                <div class="icon">
+                    <span class="material-icons-outlined">analytics</span>
+                </div>
+                <h3>Data Analysis</h3>
+                <p>Upload CSV files and get instant insights with interactive visualizations and comprehensive statistics.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
     with col2:
-        st.subheader("ML Notebooks")
-        st.write("Generate Jupyter notebooks with machine learning models tailored to your data")
-    
+        st.markdown(
+            """
+            <div class="feature-card">
+                <div class="icon">
+                    <span class="material-icons-outlined">psychology</span>
+                </div>
+                <h3>ML Notebooks</h3>
+                <p>Generate complete Jupyter notebooks with machine learning models automatically tailored to your data.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
     with col3:
-        st.subheader("Professional Reports")
-        st.write("Download PDF and HTML reports of your analyses")
+        st.markdown(
+            """
+            <div class="feature-card">
+                <div class="icon">
+                    <span class="material-icons-outlined">description</span>
+                </div>
+                <h3>Professional Reports</h3>
+                <p>Export your analyses as polished PDF and HTML reports ready for presentations and sharing.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )

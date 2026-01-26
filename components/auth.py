@@ -215,11 +215,10 @@ def handle_oauth_callback(session, User):
 
 def render_email_password_register(session, User):
     """Render email/password registration form."""
-    st.subheader("Create your New Account")
-    name = st.text_input("Full Name", key="reg_name")
-    email = st.text_input("Email", key="reg_email")
-    pwd = st.text_input("Password", type="password", key="reg_pwd")
-    pwd_confirm = st.text_input("Confirm Password", type="password", key="reg_pwd_confirm")
+    name = st.text_input("Full Name", key="reg_name", placeholder="John Doe")
+    email = st.text_input("Email", key="reg_email", placeholder="you@example.com")
+    pwd = st.text_input("Password", type="password", key="reg_pwd", placeholder="Min. 6 characters")
+    pwd_confirm = st.text_input("Confirm Password", type="password", key="reg_pwd_confirm", placeholder="Repeat password")
     
     # Email notification preference
     email_notifs = st.checkbox("Send me email notifications about my analyses", value=True)
@@ -258,9 +257,8 @@ def render_email_password_register(session, User):
 
 def render_email_password_login(session, User):
     """Render email/password login form."""
-    st.subheader("Log in to your Account")
-    email_login = st.text_input("Email", key="login_email")
-    pwd_login = st.text_input("Password", type="password", key="login_pwd")
+    email_login = st.text_input("Email", key="login_email", placeholder="you@example.com")
+    pwd_login = st.text_input("Password", type="password", key="login_pwd", placeholder="Your password")
 
     if st.button("Login", key="login_button"):
         user = session.query(User).filter_by(email=email_login).first()
@@ -292,7 +290,37 @@ def render_auth_sidebar(session, User):
     Render the complete authentication sidebar.
     Returns authenticated user or None.
     """
-    st.sidebar.header("Login or Register")
+    # Styled sidebar header
+    st.sidebar.markdown(
+        """
+        <div style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0 1rem 0;
+            border-bottom: 1px solid var(--border-color, #E2E8F0);
+            margin-bottom: 1rem;
+        ">
+            <div style="
+                width: 36px;
+                height: 36px;
+                background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 1rem;
+            ">V</div>
+            <div>
+                <div style="font-weight: 700; font-size: 1rem; color: var(--text-primary, #0F172A);">Account</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary, #64748B);">Login or Register</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
     # Check for OAuth callback
     oauth_user = handle_oauth_callback(session, User)
@@ -323,8 +351,15 @@ def render_auth_sidebar(session, User):
         
         with tab_login:
             # Google Sign-In button
-            st.markdown("### Quick Sign In")
-            
+            st.markdown(
+                """
+                <p style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary, #0F172A); margin-bottom: 0.75rem;">
+                    Quick Sign In
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
+
             # Get Google OAuth config from secrets
             try:
                 if "google_oauth" in st.secrets:
@@ -335,9 +370,25 @@ def render_auth_sidebar(session, User):
                     st.info("Google Sign-In: Configure google_oauth in Streamlit secrets to enable")
             except Exception as e:
                 st.info("Google Sign-In: Add credentials in Settings to enable")
-            
-            st.markdown("---")
-            st.markdown("### Or use Email/Password")
+
+            st.markdown(
+                """
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    margin: 1.25rem 0;
+                    gap: 1rem;
+                ">
+                    <div style="flex: 1; height: 1px; background: var(--border-color, #E2E8F0);"></div>
+                    <span style="font-size: 0.75rem; color: var(--text-muted, #94A3B8); font-weight: 500;">or</span>
+                    <div style="flex: 1; height: 1px; background: var(--border-color, #E2E8F0);"></div>
+                </div>
+                <p style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary, #0F172A); margin-bottom: 0.5rem;">
+                    Email & Password
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
             
             # Email/password login
             user = render_email_password_login(session, User)
@@ -350,8 +401,15 @@ def render_auth_sidebar(session, User):
         
         with tab_register:
             # Google Sign-In button
-            st.markdown("### Quick Sign Up")
-            
+            st.markdown(
+                """
+                <p style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary, #0F172A); margin-bottom: 0.75rem;">
+                    Quick Sign Up
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
+
             try:
                 if "google_oauth" in st.secrets:
                     client_id = st.secrets["google_oauth"]["client_id"]
@@ -361,9 +419,25 @@ def render_auth_sidebar(session, User):
                     st.info("Google Sign-In: Configure google_oauth in Streamlit secrets to enable")
             except Exception as e:
                 st.info("Google Sign-In: Add credentials in Settings to enable")
-            
-            st.markdown("---")
-            st.markdown("### Or use Email/Password")
+
+            st.markdown(
+                """
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    margin: 1.25rem 0;
+                    gap: 1rem;
+                ">
+                    <div style="flex: 1; height: 1px; background: var(--border-color, #E2E8F0);"></div>
+                    <span style="font-size: 0.75rem; color: var(--text-muted, #94A3B8); font-weight: 500;">or</span>
+                    <div style="flex: 1; height: 1px; background: var(--border-color, #E2E8F0);"></div>
+                </div>
+                <p style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary, #0F172A); margin-bottom: 0.5rem;">
+                    Email & Password
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
             
             # Email/password registration
             user = render_email_password_register(session, User)
