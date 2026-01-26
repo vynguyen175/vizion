@@ -94,9 +94,9 @@ def verify_google_token(token, client_id):
 
 
 def render_google_signin_button(client_id, redirect_uri):
-    """Render a styled Google Sign-In button."""
+    """Render a styled Google Sign-In button with teal accent."""
     oauth_url = get_google_oauth_url(client_id, redirect_uri)
-    
+
     st.markdown(
         f"""
         <a href="{oauth_url}" target="_self" style="text-decoration: none;">
@@ -105,20 +105,21 @@ def render_google_signin_button(client_id, redirect_uri):
                 align-items: center;
                 justify-content: center;
                 background-color: white;
-                color: #3c4043;
-                border: 1px solid #dadce0;
-                border-radius: 4px;
-                padding: 10px 20px;
-                font-family: 'Google Sans', Roboto, arial, sans-serif;
+                color: #0F172A;
+                border: 1px solid #E2E8F0;
+                border-radius: 9999px;
+                padding: 12px 24px;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                 font-size: 14px;
-                font-weight: 500;
+                font-weight: 600;
                 cursor: pointer;
-                transition: background-color 0.2s, box-shadow 0.2s;
+                transition: all 0.2s ease;
                 margin: 10px 0;
-            " onmouseover="this.style.backgroundColor='#f8f9fa'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.12)'" 
-               onmouseout="this.style.backgroundColor='white'; this.style.boxShadow='none'">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
-                     alt="Google logo" 
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            " onmouseover="this.style.borderColor='#0D9488'; this.style.boxShadow='0 4px 6px rgba(13,148,136,0.15)'; this.style.transform='translateY(-1px)'"
+               onmouseout="this.style.borderColor='#E2E8F0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'; this.style.transform='translateY(0)'">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                     alt="Google logo"
                      style="width: 18px; height: 18px; margin-right: 10px;">
                 Sign in with Google
             </div>

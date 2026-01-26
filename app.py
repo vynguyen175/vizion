@@ -22,58 +22,384 @@ from components.notifications import (
 )
 
 def inject_pro_theme_css():
-    # global layout and component styling
+    """Inject comprehensive theme CSS with light/dark mode support."""
+
+    # Initialize theme in session state
+    if 'theme' not in st.session_state:
+        st.session_state.theme = 'light'
+
+    theme = st.session_state.theme
+
     st.markdown(
-        """
+        f"""
         <style>
-        /* Center content and control width */
-        .block-container {
+        /* Import Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* CSS Variables */
+        :root {{
+            --primary: #0D9488;
+            --primary-light: #14B8A6;
+            --primary-dark: #0F766E;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --info: #3B82F6;
+        }}
+
+        /* Light theme variables */
+        .light-theme {{
+            --bg-primary: #F8FAFC;
+            --bg-secondary: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border-color: #E2E8F0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }}
+
+        /* Dark theme variables */
+        .dark-theme {{
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-card: #1E293B;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-color: #334155;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+        }}
+
+        /* Apply theme class to root */
+        .stApp {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        }}
+
+        /* Main container */
+        .block-container {{
             max-width: 1200px;
-            padding-top: 2rem;
+            padding-top: 1rem;
             padding-bottom: 4rem;
-        }
+        }}
 
-        /* History and main sections as soft cards */
-        .stMarkdown, .stDataFrame, .stExpander, .stFileUploader, .stTable {
-            border-radius: 10px !important;
-        }
+        /* Headers */
+        h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+        }}
 
-        /* Buttons: pill-shaped, bold */
-        .stButton > button {
-            border-radius: 999px;
-            padding: 0.45rem 1.4rem;
-            font-weight: 600;
-            border: 1px solid #38BDF8;
-        }
-
-        /* Primary buttons hover */
-        .stButton > button:hover {
-            border-color: #0EA5E9;
-            box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
-        }
-
-        /* File uploader card */
-        .stFileUploader {
-            background-color: #111827;
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid #1F2933;
-        }
-
-        /* Expanders (history items) */
-        .streamlit-expanderHeader {
-            font-weight: 600;
-        }
-
-        /* Tables: subtle border */
-        .dataframe {
-            border-radius: 8px;
+        /* Cards styling */
+        .stExpander, [data-testid="stExpander"] {{
+            background-color: var(--bg-card) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 12px !important;
+            box-shadow: var(--shadow) !important;
             overflow: hidden;
-        }
+        }}
+
+        .streamlit-expanderHeader {{
+            font-weight: 600 !important;
+            font-family: 'Inter', sans-serif !important;
+        }}
+
+        /* Metric cards */
+        [data-testid="metric-container"] {{
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+        }}
+
+        [data-testid="stMetricValue"] {{
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            color: var(--primary) !important;
+        }}
+
+        [data-testid="stMetricLabel"] {{
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.05em;
+        }}
+
+        /* Buttons - Pill shaped with teal accent */
+        .stButton > button {{
+            font-family: 'Inter', sans-serif !important;
+            border-radius: 9999px !important;
+            padding: 0.5rem 1.5rem !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            border: 1px solid var(--primary) !important;
+            background-color: transparent !important;
+            color: var(--primary) !important;
+            transition: all 0.2s ease !important;
+            box-shadow: var(--shadow) !important;
+        }}
+
+        .stButton > button:hover {{
+            background-color: var(--primary) !important;
+            color: white !important;
+            box-shadow: var(--shadow-lg) !important;
+            transform: translateY(-1px);
+        }}
+
+        .stButton > button[kind="primary"],
+        .stButton > button[data-testid="baseButton-primary"] {{
+            background-color: var(--primary) !important;
+            color: white !important;
+            border-color: var(--primary) !important;
+        }}
+
+        .stButton > button[kind="primary"]:hover,
+        .stButton > button[data-testid="baseButton-primary"]:hover {{
+            background-color: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+        }}
+
+        /* Download buttons */
+        .stDownloadButton > button {{
+            font-family: 'Inter', sans-serif !important;
+            border-radius: 9999px !important;
+            padding: 0.5rem 1.5rem !important;
+            font-weight: 600 !important;
+            border: 1px solid var(--primary) !important;
+            background-color: var(--primary) !important;
+            color: white !important;
+            transition: all 0.2s ease !important;
+        }}
+
+        .stDownloadButton > button:hover {{
+            background-color: var(--primary-dark) !important;
+            box-shadow: var(--shadow-lg) !important;
+        }}
+
+        /* File uploader */
+        [data-testid="stFileUploader"] {{
+            background-color: var(--bg-card) !important;
+            border: 2px dashed var(--border-color) !important;
+            border-radius: 12px !important;
+            padding: 1.5rem !important;
+            transition: border-color 0.2s ease;
+        }}
+
+        [data-testid="stFileUploader"]:hover {{
+            border-color: var(--primary) !important;
+        }}
+
+        /* Data frames / tables */
+        .stDataFrame, [data-testid="stDataFrame"] {{
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            box-shadow: var(--shadow) !important;
+            border: 1px solid var(--border-color) !important;
+        }}
+
+        .dataframe {{
+            border-radius: 12px !important;
+        }}
+
+        /* Selectbox and inputs */
+        .stSelectbox > div > div,
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea {{
+            border-radius: 8px !important;
+            border-color: var(--border-color) !important;
+            font-family: 'Inter', sans-serif !important;
+        }}
+
+        .stSelectbox > div > div:focus-within,
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {{
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2) !important;
+        }}
+
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {{
+            gap: 8px;
+        }}
+
+        .stTabs [data-baseweb="tab"] {{
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1rem !important;
+        }}
+
+        .stTabs [aria-selected="true"] {{
+            background-color: var(--primary) !important;
+            color: white !important;
+        }}
+
+        /* Info, success, warning, error boxes */
+        .stAlert {{
+            border-radius: 12px !important;
+            font-family: 'Inter', sans-serif !important;
+        }}
+
+        /* Sidebar styling */
+        [data-testid="stSidebar"] {{
+            background-color: var(--bg-card) !important;
+            border-right: 1px solid var(--border-color) !important;
+        }}
+
+        [data-testid="stSidebar"] .stMarkdown {{
+            font-family: 'Inter', sans-serif !important;
+        }}
+
+        /* Progress bars and spinners */
+        .stProgress > div > div {{
+            background-color: var(--primary) !important;
+        }}
+
+        /* Checkbox */
+        .stCheckbox label {{
+            font-family: 'Inter', sans-serif !important;
+        }}
+
+        /* Custom card class */
+        .vizion-card {{
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+        }}
+
+        /* Stat card */
+        .stat-card {{
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }}
+
+        .stat-card .stat-label {{
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }}
+
+        .stat-card .stat-value {{
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }}
+
+        .stat-card .stat-trend {{
+            font-size: 0.625rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }}
+
+        .stat-card .stat-trend.positive {{
+            color: var(--success);
+        }}
+
+        .stat-card .stat-trend.negative {{
+            color: var(--error);
+        }}
+
+        /* Section header */
+        .section-header {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }}
+
+        .section-header .icon {{
+            width: 2rem;
+            height: 2rem;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }}
+
+        .section-header h2 {{
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 700;
+        }}
+
+        /* Theme toggle button */
+        .theme-toggle {{
+            position: fixed;
+            top: 0.75rem;
+            right: 1rem;
+            z-index: 1000;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            padding: 0.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }}
+
+        .theme-toggle:hover {{
+            box-shadow: var(--shadow-lg);
+        }}
+
+        /* Divider */
+        hr {{
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 1.5rem 0;
+        }}
+
+        /* Links */
+        a {{
+            color: var(--primary) !important;
+        }}
+
+        a:hover {{
+            color: var(--primary-dark) !important;
+        }}
         </style>
+
+        <!-- Apply theme class -->
+        <script>
+            const theme = '{theme}';
+            const stApp = window.parent.document.querySelector('.stApp');
+            if (stApp) {{
+                stApp.classList.remove('light-theme', 'dark-theme');
+                stApp.classList.add(theme + '-theme');
+            }}
+        </script>
         """,
         unsafe_allow_html=True,
     )
+
+
+def render_theme_toggle():
+    """Render theme toggle button in sidebar."""
+    current_theme = st.session_state.get('theme', 'light')
+
+    col1, col2 = st.sidebar.columns([3, 1])
+    with col2:
+        if current_theme == 'light':
+            if st.button("Dark", key="theme_toggle", help="Switch to dark mode"):
+                st.session_state.theme = 'dark'
+                st.rerun()
+        else:
+            if st.button("Light", key="theme_toggle", help="Switch to light mode"):
+                st.session_state.theme = 'light'
+                st.rerun()
 
 # intial setup
 # Create database tables if they don't exist
@@ -82,11 +408,37 @@ Base.metadata.create_all(bind=engine)
 # streamlit page setup
 st.set_page_config(page_title="Vizion", page_icon=None, layout="wide")
 inject_pro_theme_css()
-st.title("Vizion")
+
+# Styled header with logo
+st.markdown(
+    """
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+        <div style="
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            font-family: 'Inter', sans-serif;
+        ">V</div>
+        <div>
+            <h1 style="margin: 0; font-size: 1.75rem; font-weight: 700; font-family: 'Inter', sans-serif;">Vizion</h1>
+            <p style="margin: 0; font-size: 0.875rem; color: #64748B; font-family: 'Inter', sans-serif;">Data Analysis & ML Platform</p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 session = get_session()
 
-# Render authentication sidebar and get current user
+# Render theme toggle and authentication sidebar
+render_theme_toggle()
 user = render_auth_sidebar(session, User)
 
 # Only show main app if user is logged in

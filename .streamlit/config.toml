@@ -1,7 +1,8 @@
 # Streamlit theme configuration
+# Base theme - CSS will handle light/dark toggle dynamically
 [theme]
-primaryColor = "#38BDF8"          # accent color for buttons, links
-backgroundColor = "#0F172A"       # main page background
-secondaryBackgroundColor = "#111827"  # cards / containers / sidebar
-textColor = "#F9FAFB"             # main text color
-font = "sans serif"               # keep it simple and readable
+primaryColor = "#0D9488"
+backgroundColor = "#F8FAFC"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#0F172A"
+font = "sans serif"

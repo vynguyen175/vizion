@@ -4,6 +4,23 @@ import seaborn as sns
 import streamlit as st
 from typing import Dict, List
 
+# Set up teal color palette for charts
+TEAL_PALETTE = ["#0D9488", "#14B8A6", "#2DD4BF", "#5EEAD4", "#99F6E4", "#CCFBF1"]
+TEAL_CMAP = sns.light_palette("#0D9488", as_cmap=True)
+
+# Configure matplotlib/seaborn defaults
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = ['Inter', 'Arial', 'Helvetica', 'DejaVu Sans']
+plt.rcParams['axes.spines.top'] = False
+plt.rcParams['axes.spines.right'] = False
+plt.rcParams['axes.edgecolor'] = '#E2E8F0'
+plt.rcParams['axes.labelcolor'] = '#64748B'
+plt.rcParams['xtick.color'] = '#64748B'
+plt.rcParams['ytick.color'] = '#64748B'
+plt.rcParams['figure.facecolor'] = 'white'
+plt.rcParams['axes.facecolor'] = 'white'
+sns.set_palette(TEAL_PALETTE)
+
 
 def detect_column_types(df: pd.DataFrame) -> Dict[str, List[str]]:
     """
@@ -94,8 +111,12 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
     st.subheader("Correlation Heatmap")
     numeric = df.select_dtypes(include="number")
     if numeric.shape[1] > 1:
-        fig, ax = plt.subplots()
-        sns.heatmap(numeric.corr(), annot=True, cmap="Blues", ax=ax)
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(numeric.corr(), annot=True, cmap=TEAL_CMAP, ax=ax,
+                    linewidths=0.5, linecolor='white',
+                    cbar_kws={'shrink': 0.8})
+        ax.set_title("Feature Correlations", fontsize=14, fontweight='600', color='#0F172A', pad=15)
+        plt.tight_layout()
         st.pyplot(fig)
     else:
         st.info("No numeric columns found for correlation.")
@@ -132,10 +153,11 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
         if counts.empty or counts.nunique() == len(df):
             st.warning("Nothing meaningful to plot as a bar chart.")
         else:
-            counts.head(20).plot(kind="bar", ax=ax)
-            ax.set_ylabel("Count")
-            ax.set_title(f"Bar chart of {col}")
-            plt.xticks(rotation=45, ha="right")
+            counts.head(20).plot(kind="bar", ax=ax, color='#0D9488', edgecolor='white')
+            ax.set_ylabel("Count", fontsize=10, color='#64748B')
+            ax.set_title(f"Distribution of {col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            plt.xticks(rotation=45, ha="right", fontsize=9)
+            plt.tight_layout()
             st.pyplot(fig)
 
     elif chart_type == "Pie":
@@ -143,24 +165,33 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
         if counts.empty or counts.nunique() > 10:
             st.warning("Pie chart works best for a small number of categories.")
         else:
-            counts.plot(kind="pie", autopct="%1.1f%%", ax=ax)
+            counts.plot(kind="pie", autopct="%1.1f%%", ax=ax, colors=TEAL_PALETTE,
+                       wedgeprops={'edgecolor': 'white', 'linewidth': 2})
             ax.set_ylabel("")
-            ax.set_title(f"Distribution of {col}")
+            ax.set_title(f"Distribution of {col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            plt.tight_layout()
             st.pyplot(fig)
 
     elif chart_type == "Histogram":
         if pd.api.types.is_numeric_dtype(df[col]):
-            sns.histplot(df[col], kde=True, ax=ax)
-            ax.set_title(f"Histogram of {col}")
+            sns.histplot(df[col], kde=True, ax=ax, color='#0D9488', edgecolor='white',
+                        line_kws={'color': '#0F766E', 'linewidth': 2})
+            ax.set_title(f"Distribution of {col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            ax.set_xlabel(col, fontsize=10, color='#64748B')
+            ax.set_ylabel("Frequency", fontsize=10, color='#64748B')
+            plt.tight_layout()
             st.pyplot(fig)
         else:
             st.warning("Histogram only works for numeric columns.")
 
     elif chart_type == "Line":
         if pd.api.types.is_numeric_dtype(df[col]):
-            df[col].reset_index(drop=True).plot(kind="line", ax=ax)
-            ax.set_ylabel(col)
-            ax.set_title(f"Line chart of {col}")
+            df[col].reset_index(drop=True).plot(kind="line", ax=ax, color='#0D9488', linewidth=2)
+            ax.set_ylabel(col, fontsize=10, color='#64748B')
+            ax.set_xlabel("Index", fontsize=10, color='#64748B')
+            ax.set_title(f"Trend of {col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            ax.fill_between(range(len(df[col])), df[col].values, alpha=0.1, color='#0D9488')
+            plt.tight_layout()
             st.pyplot(fig)
         else:
             st.warning("Line chart only works for numeric columns.")
@@ -205,18 +236,22 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
 
     if compare_type == "Scatter":
         if pd.api.types.is_numeric_dtype(df[x_col]) and pd.api.types.is_numeric_dtype(df[y_col]):
-            sns.scatterplot(x=df[x_col], y=df[y_col], ax=ax)
-            ax.set_xlabel(x_col)
-            ax.set_ylabel(y_col)
-            ax.set_title(f"{x_col} vs {y_col}")
+            sns.scatterplot(x=df[x_col], y=df[y_col], ax=ax, color='#0D9488', alpha=0.7, edgecolor='white')
+            ax.set_xlabel(x_col, fontsize=10, color='#64748B')
+            ax.set_ylabel(y_col, fontsize=10, color='#64748B')
+            ax.set_title(f"{x_col} vs {y_col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            plt.tight_layout()
             st.pyplot(fig)
         else:
             st.warning("Scatter comparison works only for numeric columns.")
 
     elif compare_type == "Line":
         if pd.api.types.is_numeric_dtype(df[x_col]) and pd.api.types.is_numeric_dtype(df[y_col]):
-            df.plot(x=x_col, y=y_col, kind="line", ax=ax)
-            ax.set_title(f"{y_col} over {x_col}")
+            df.plot(x=x_col, y=y_col, kind="line", ax=ax, color='#0D9488', linewidth=2)
+            ax.set_title(f"{y_col} over {x_col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            ax.set_xlabel(x_col, fontsize=10, color='#64748B')
+            ax.set_ylabel(y_col, fontsize=10, color='#64748B')
+            plt.tight_layout()
             st.pyplot(fig)
         else:
             st.warning("Line comparison works best with numeric columns.")
@@ -231,11 +266,12 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
         if grouped.empty:
             st.warning("Bar comparison requires numeric Y and categorical X.")
         else:
-            grouped.plot(kind="bar", ax=ax)
-            ax.set_xlabel(x_col)
-            ax.set_ylabel(f"Average {y_col}")
-            ax.set_title(f"{y_col} by {x_col}")
-            plt.xticks(rotation=45, ha="right")
+            grouped.plot(kind="bar", ax=ax, color='#0D9488', edgecolor='white')
+            ax.set_xlabel(x_col, fontsize=10, color='#64748B')
+            ax.set_ylabel(f"Average {y_col}", fontsize=10, color='#64748B')
+            ax.set_title(f"{y_col} by {x_col}", fontsize=12, fontweight='600', color='#0F172A', pad=10)
+            plt.xticks(rotation=45, ha="right", fontsize=9)
+            plt.tight_layout()
             st.pyplot(fig)
 
     elif compare_type == "Correlation":
