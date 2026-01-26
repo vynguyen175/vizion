@@ -210,26 +210,6 @@ def handle_oauth_callback(session, User):
         return user
     
     return None
-            user = User(
-                id=str(uuid.uuid4()),
-                name=oauth_info['name'],
-                email=oauth_info['email'],
-                password_hash=None,  # No password for OAuth users
-                oauth_provider='google',
-                oauth_id=oauth_info['oauth_id'],
-                profile_picture=oauth_info.get('profile_picture'),
-                email_notifications='true'
-            )
-            session.add(user)
-        
-        session.commit()
-        
-        # Clear OAuth info from session state
-        del st.session_state.oauth_info
-        
-        return user
-    
-    return None
 
 
 def render_email_password_register(session, User):
