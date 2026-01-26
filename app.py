@@ -80,9 +80,16 @@ def inject_pro_theme_css():
             --shadow-lg: {shadow_lg};
         }}
 
-        /* Global font */
-        * {{
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        /* Global font - exclude material icons */
+        *:not(.material-icons):not(.material-icons-outlined):not([data-testid="stSidebarCollapseButton"] *):not([class*="icon"]) {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }}
+
+        /* Ensure Material Icons render correctly */
+        .material-icons,
+        .material-icons-outlined,
+        [data-testid="stSidebarCollapseButton"] span {{
+            font-family: 'Material Icons', 'Material Icons Outlined' !important;
         }}
 
         /* Main app background */
@@ -435,6 +442,27 @@ def inject_pro_theme_css():
         /* Hide Streamlit branding */
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
+
+        /* Fix Streamlit sidebar collapse button icon */
+        [data-testid="stSidebarCollapseButton"] {{
+            display: none !important;
+        }}
+
+        /* Fix any icon rendering issues */
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span.material-icons-outlined {{
+            font-family: 'Material Icons Outlined' !important;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }}
         </style>
         """,
         unsafe_allow_html=True,
