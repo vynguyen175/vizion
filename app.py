@@ -80,16 +80,152 @@ def inject_pro_theme_css():
             --shadow-lg: {shadow_lg};
         }}
 
-        /* Global font - exclude material icons */
-        *:not(.material-icons):not(.material-icons-outlined):not([data-testid="stSidebarCollapseButton"] *):not([class*="icon"]) {{
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        /* Global font - apply to the root and let it inherit */
+        html, body, .stApp {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        }}
+
+        /* Text elements inherit from body */
+        p, h1, h2, h3, h4, h5, h6, label, input, textarea, a,
+        .stMarkdown, .stText, [data-testid="stMarkdownContainer"] p {{
+            font-family: inherit !important;
         }}
 
         /* Ensure Material Icons render correctly */
         .material-icons,
-        .material-icons-outlined,
-        [data-testid="stSidebarCollapseButton"] span {{
-            font-family: 'Material Icons', 'Material Icons Outlined' !important;
+        .material-icons-outlined {{
+            font-family: 'Material Icons Outlined' !important;
+            font-weight: normal !important;
+            font-style: normal !important;
+            font-size: 24px !important;
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+            display: inline-block !important;
+            white-space: nowrap !important;
+            word-wrap: normal !important;
+            direction: ltr !important;
+            -webkit-font-smoothing: antialiased !important;
+        }}
+
+        /* Preserve Streamlit's icon fonts - critical fix for icon rendering */
+        [data-baseweb] *,
+        [data-testid] svg,
+        [role="listbox"],
+        [role="option"],
+        button svg,
+        summary svg {{
+            font-family: inherit !important;
+        }}
+
+        /* Fix expander toggle icon - hide text, show only SVG */
+        [data-testid="stExpander"] summary {{
+            display: flex !important;
+            align-items: center !important;
+        }}
+
+        /* Hide text in icon-only containers, show only SVG */
+        [data-testid="stExpanderToggleIcon"] {{
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 24px !important;
+            height: 24px !important;
+        }}
+
+        /* Ensure SVG icons are visible and properly sized */
+        [data-testid="stExpanderToggleIcon"] svg {{
+            color: {text_primary} !important;
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            min-height: 18px !important;
+            display: block !important;
+        }}
+
+        /* Fix selectbox/dropdown icons */
+        [data-baseweb="select"] [data-baseweb="icon"] svg {{
+            width: 18px !important;
+            height: 18px !important;
+        }}
+
+        /* Fix header link icons (the chain link icon next to headers) */
+        [data-testid="StyledLinkIconContainer"] {{
+            color: transparent !important;
+            font-size: 0 !important;
+            text-indent: -9999px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            width: 20px !important;
+            height: 20px !important;
+            overflow: hidden !important;
+        }}
+
+        [data-testid="StyledLinkIconContainer"] svg {{
+            color: {text_secondary} !important;
+            font-size: initial !important;
+            text-indent: 0 !important;
+            width: 16px !important;
+            height: 16px !important;
+            display: block !important;
+        }}
+
+        /* Hide broken image placeholders in sidebar */
+        [data-testid="stSidebar"] img[src=""] {{
+            display: none !important;
+        }}
+
+        /* Fix dataframe/table toolbar icon buttons */
+        [data-testid="stDataFrame"] [data-testid="stBaseButton-icon"],
+        [data-testid="stDataFrameResizable"] [data-testid="stBaseButton-icon"] {{
+            color: transparent !important;
+            font-size: 0 !important;
+            text-indent: -9999px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+        }}
+
+        [data-testid="stDataFrame"] [data-testid="stBaseButton-icon"] svg,
+        [data-testid="stDataFrameResizable"] [data-testid="stBaseButton-icon"] svg {{
+            color: {text_primary} !important;
+            font-size: initial !important;
+            text-indent: 0 !important;
+            width: 16px !important;
+            height: 16px !important;
+            display: block !important;
+        }}
+
+        /* Fix icon-only buttons throughout the app */
+        [data-testid="stBaseButton-icon"],
+        [data-testid="stBaseButton-elementToolbar"] {{
+            color: transparent !important;
+            font-size: 0 !important;
+            text-indent: -9999px !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }}
+
+        [data-testid="stBaseButton-icon"] svg,
+        [data-testid="stBaseButton-elementToolbar"] svg {{
+            color: {text_primary} !important;
+            font-size: initial !important;
+            text-indent: 0 !important;
+            width: 18px !important;
+            height: 18px !important;
+            display: block !important;
+        }}
+
+        /* Fix glide data grid icon buttons (used in dataframes) */
+        .dvn-scroller button svg,
+        .gdg-button svg {{
+            color: {text_primary} !important;
+            width: 16px !important;
+            height: 16px !important;
         }}
 
         /* Main app background */
@@ -442,6 +578,19 @@ def inject_pro_theme_css():
         /* Hide Streamlit branding */
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
+
+        /* Hide the header toolbar but keep space */
+        [data-testid="stHeader"] {{
+            background: transparent !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+        }}
+
+        .block-container {{
+            padding-top: 2rem !important;
+            margin-top: 0 !important;
+        }}
 
         /* Fix Streamlit sidebar collapse button icon */
         [data-testid="stSidebarCollapseButton"] {{

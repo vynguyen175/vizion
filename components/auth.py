@@ -11,30 +11,29 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 import json
 import requests as http_requests
+from urllib.parse import urlencode
 
 
 def get_google_oauth_url(client_id, redirect_uri):
     """Generate Google OAuth URL."""
     base_url = "https://accounts.google.com/o/oauth2/v2/auth"
-    scope = "openid email profile"
-    
+
     params = {
         "client_id": client_id,
         "redirect_uri": redirect_uri,
         "response_type": "code",
-        "scope": scope,
+        "scope": "openid email profile",
         "access_type": "offline",
         "prompt": "consent"
     }
-    
-    query_string = "&".join([f"{k}={v}" for k, v in params.items()])
-    return f"{base_url}?{query_string}"
+
+    return f"{base_url}?{urlencode(params)}"
 
 
 def exchange_code_for_token(code, client_id, client_secret, redirect_uri):
     """Exchange authorization code for access token."""
     token_url = "https://oauth2.googleapis.com/token"
-    
+
     data = {
         "code": code,
         "client_id": client_id,
@@ -42,11 +41,20 @@ def exchange_code_for_token(code, client_id, client_secret, redirect_uri):
         "redirect_uri": redirect_uri,
         "grant_type": "authorization_code"
     }
-    
+
     try:
         response = http_requests.post(token_url, data=data)
         response.raise_for_status()
         return response.json()
+    except http_requests.exceptions.HTTPError as e:
+        # Get detailed error from Google
+        error_detail = ""
+        try:
+            error_detail = response.json()
+        except:
+            error_detail = response.text
+        st.error(f"Token exchange failed: {error_detail}")
+        return None
     except Exception as e:
         st.error(f"Token exchange failed: {str(e)}")
         return None
@@ -73,9 +81,10 @@ def verify_google_token(token, client_id):
     """Verify Google ID token and return user info."""
     try:
         idinfo = id_token.verify_oauth2_token(
-            token, 
-            google_requests.Request(), 
-            client_id
+            token,
+            google_requests.Request(),
+            client_id,
+            clock_skew_in_seconds=30  # Allow 30 seconds tolerance for clock differences
         )
         
         if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
@@ -131,86 +140,100 @@ def render_google_signin_button(client_id, redirect_uri):
 
 def handle_oauth_callback(session, User):
     """Handle OAuth callback and create/login user."""
-    params = st.query_params
-    
-    # Check for OAuth code in URL
-    if "code" in params:
-        code = params["code"]
+
+    # Step 1: Check if we have a pending code to process (stored before rerun)
+    if st.session_state.get("oauth_pending_code"):
+        code = st.session_state.oauth_pending_code
+        st.session_state.oauth_pending_code = None
+    else:
+        # Step 2: Check for new OAuth code in URL
+        params = st.query_params
+        if "code" not in params:
+            return None
+
+        code = params.get("code")
         if isinstance(code, list):
             code = code[0]
-        
-        # Get OAuth config
-        try:
-            client_id = st.secrets["google_oauth"]["client_id"]
-            client_secret = st.secrets["google_oauth"].get("client_secret", "")
-            redirect_uri = st.secrets["google_oauth"]["redirect_uri"]
-        except:
-            st.error("OAuth configuration missing")
-            return None
-        
-        # Exchange code for tokens
-        token_response = exchange_code_for_token(code, client_id, client_secret, redirect_uri)
-        
-        if not token_response:
-            st.error("Failed to exchange authorization code for token")
-            return None
-        
-        # Get user info
-        access_token = token_response.get("access_token")
-        id_token_jwt = token_response.get("id_token")
-        
-        if id_token_jwt:
-            # Verify and decode ID token
-            user_info = verify_google_token(id_token_jwt, client_id)
-        elif access_token:
-            # Fallback to userinfo endpoint
-            user_info = get_user_info_from_token(access_token)
-            if user_info:
-                user_info = {
-                    'oauth_id': user_info.get('id'),
-                    'email': user_info.get('email'),
-                    'name': user_info.get('name', ''),
-                    'profile_picture': user_info.get('picture', ''),
-                    'email_verified': user_info.get('verified_email', False)
-                }
-        else:
-            st.error("No valid token received")
-            return None
-        
-        if not user_info:
-            st.error("Failed to get user information from Google")
-            return None
-        
-        # Check if user exists
-        user = session.query(User).filter_by(email=user_info['email']).first()
-        
-        if user:
-            # Update OAuth info
-            user.oauth_provider = 'google'
-            user.oauth_id = user_info['oauth_id']
-            user.profile_picture = user_info.get('profile_picture')
-        else:
-            # Create new user
-            user = User(
-                id=str(uuid.uuid4()),
-                name=user_info['name'] or user_info['email'].split('@')[0],
-                email=user_info['email'],
-                password_hash=None,
-                oauth_provider='google',
-                oauth_id=user_info['oauth_id'],
-                profile_picture=user_info.get('profile_picture'),
-                email_notifications='true'
-            )
-            session.add(user)
-        
-        session.commit()
-        
-        # Clear query params
+
+        # Already processed this exact code? Return cached user
+        if st.session_state.get("oauth_done_code") == code:
+            return st.session_state.get("oauth_user")
+
+        # Store code in session state, then clear URL and rerun
+        st.session_state.oauth_pending_code = code
         st.query_params.clear()
-        
-        return user
-    
-    return None
+        st.rerun()
+
+    # Step 3: Exchange code for tokens (only runs after rerun with clean URL)
+    try:
+        client_id = st.secrets["google_oauth"]["client_id"]
+        client_secret = st.secrets["google_oauth"].get("client_secret", "")
+        redirect_uri = st.secrets["google_oauth"]["redirect_uri"]
+    except:
+        st.error("OAuth configuration missing")
+        return None
+
+    token_response = exchange_code_for_token(code, client_id, client_secret, redirect_uri)
+
+    if not token_response:
+        st.error("Failed to exchange authorization code for token")
+        return None
+
+    # Get user info
+    access_token = token_response.get("access_token")
+    id_token_jwt = token_response.get("id_token")
+
+    if id_token_jwt:
+        # Verify and decode ID token
+        user_info = verify_google_token(id_token_jwt, client_id)
+    elif access_token:
+        # Fallback to userinfo endpoint
+        user_info = get_user_info_from_token(access_token)
+        if user_info:
+            user_info = {
+                'oauth_id': user_info.get('id'),
+                'email': user_info.get('email'),
+                'name': user_info.get('name', ''),
+                'profile_picture': user_info.get('picture', ''),
+                'email_verified': user_info.get('verified_email', False)
+            }
+    else:
+        st.error("No valid token received")
+        return None
+
+    if not user_info:
+        st.error("Failed to get user information from Google")
+        return None
+
+    # Check if user exists
+    user = session.query(User).filter_by(email=user_info['email']).first()
+
+    if user:
+        # Update OAuth info
+        user.oauth_provider = 'google'
+        user.oauth_id = user_info['oauth_id']
+        user.profile_picture = user_info.get('profile_picture')
+    else:
+        # Create new user
+        user = User(
+            id=str(uuid.uuid4()),
+            name=user_info['name'] or user_info['email'].split('@')[0],
+            email=user_info['email'],
+            password_hash=None,
+            oauth_provider='google',
+            oauth_id=user_info['oauth_id'],
+            profile_picture=user_info.get('profile_picture'),
+            email_notifications='true'
+        )
+        session.add(user)
+
+    session.commit()
+
+    # Mark as successfully processed
+    st.session_state.oauth_done_code = code
+    st.session_state.oauth_user = user
+
+    return user
 
 
 def render_email_password_register(session, User):
@@ -325,6 +348,10 @@ def render_auth_sidebar(session, User):
     # Check for OAuth callback
     oauth_user = handle_oauth_callback(session, User)
     if oauth_user:
+        # Persist the session state so user stays logged in
+        st.session_state.user_id = oauth_user.id
+        st.session_state.email = oauth_user.email
+        st.query_params["uid"] = oauth_user.id
         return oauth_user
     
     # Check if already logged in
@@ -463,9 +490,13 @@ def render_auth_sidebar(session, User):
         
         # Show user profile
         st.sidebar.markdown("---")
-        
-        if user.profile_picture:
-            st.sidebar.image(user.profile_picture, width=80)
+
+        # Display profile picture only if valid URL exists
+        if user.profile_picture and user.profile_picture.startswith(('http://', 'https://')):
+            try:
+                st.sidebar.image(user.profile_picture, width=80)
+            except Exception:
+                pass  # Skip if image fails to load
         
         st.sidebar.write(f"**{user.name}**")
         st.sidebar.write(f"Email: {user.email}")
