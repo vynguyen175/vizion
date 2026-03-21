@@ -111,7 +111,7 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
     st.subheader("Correlation Heatmap")
     numeric = df.select_dtypes(include="number")
     if numeric.shape[1] > 1:
-        fig, ax = plt.subplots(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=(7, 5))
         sns.heatmap(numeric.corr(), annot=True, cmap=TEAL_CMAP, ax=ax,
                     linewidths=0.5, linecolor='white',
                     cbar_kws={'shrink': 0.8})
@@ -146,7 +146,7 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
         key=plot_type_key
     )
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6, 4))
 
     if chart_type == "Bar":
         counts = df[col].astype(str).value_counts()
@@ -232,7 +232,7 @@ def analyze_csv(df: pd.DataFrame, key_prefix="default", initial_config=None):
         key=cmp_type_key
     )
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6, 4))
 
     if compare_type == "Scatter":
         if pd.api.types.is_numeric_dtype(df[x_col]) and pd.api.types.is_numeric_dtype(df[y_col]):
